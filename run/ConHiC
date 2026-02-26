@@ -1,0 +1,109 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+
+# Author: [Your Name]
+# Email: [Your Email]
+# Created Time: 2025-02-26
+
+"""
+ConHiC: A Polyploid Genome Hi-C Chromosome-Level Scaffolding Method Based on Multi-Scale Masking Mechanism and Consensus.
+This script serves as the main entry point for all ConHiC subcommands.
+"""
+
+import os
+import sys
+import subprocess
+try:
+    from importlib.metadata import distribution
+except ImportError:
+    from pkg_resources import get_distribution as distribution
+
+
+
+TITLE_ART = """
+          \033[45;37m     ██████╗ ██████╗ ███╗   ██╗██╗  ██╗██╗ ██████╗     \033[0m
+          \033[45;37m    ██╔════╝██╔═══██╗████╗  ██║██║  ██║██║██╔════╝     \033[0m
+          \033[45;37m    ██║     ██║   ██║██╔██╗ ██║███████║██║██║          \033[0m
+          \033[45;37m    ██║     ██║   ██║██║╚██╗██║██╔══██║██║██║          \033[0m
+          \033[45;37m    ╚██████╗╚██████╔╝██║ ╚████║██║  ██║██║╚██████╗     \033[0m
+          \033[45;37m     ╚═════╝ ╚═════╝ ╚═╝  ╚═══╝╚═╝  ╚═╝╚═╝ ╚═════╝     \033[0m
+          \033[45;37m                                                       \033[0m
+          \033[45;37m          ConHiC: A Polyploid Genome Hi-C              \033[0m
+          \033[45;37m      Chromosome-Level Scaffolding Method Based on     \033[0m
+          \033[47;32m     Multi-Scale Masking Mechanism and Consensus.      \033[0m
+"""
+
+HELP_MESSAGE = """
+  Usage: conhic [command] <parameters>
+
+  Command     Description
+  ---------   ----------------------------------------------------------------
+  pipeline    Execute complete scaffolding workflow (cluster → reassign → 
+              sort → build) in one command.
+
+  cluster     [Step 1] Preprocess Hi-C data and perform initial grouping
+              of contigs using Markov clustering.
+
+  reassign    [Step 2] Refine initial clusters through contig reassignment,
+              rescue operations, and optional hierarchical clustering.
+
+  sort        [Step 3] Determine optimal order and orientation of contigs
+              within each chromosome-scale group.
+
+  build       [Step 4] Construct final pseudomolecules from ordered contigs
+              and generate AGP output.
+
+  Use conhic [command] --help or -h for detailed help on each command.
+
+  Documentation and examples:
+  https://github.com/[your-repo]/conhic
+  """
+
+# Mapping of subcommands to their corresponding backend scripts
+COMMAND_MAP = {
+    'pipeline': 'ConHiC_pipeline.py',
+    'cluster': 'ConHiC_cluster.py',
+    'reassign': 'ConHiC_reassign.py',
+    'sort': 'ConHiC_sort.py',
+    'build': 'ConHiC_build.py',
+}
+
+
+def check_dependency(module_name, package_name):
+    """Verify that a required Python package is installed."""
+    try:
+        print(f'Checking {package_name}... ', end='')
+        __import__(module_name)
+        print(f'\033[32mOK (version: {distribution(package_name).version}).\033[0m')
+    except ImportError:
+        print(f'\033[31mMissing: {package_name} is not installed.\033[0m')
+
+
+# Main command dispatcher
+if len(sys.argv) > 1 and sys.argv[1] in COMMAND_MAP:
+
+    script_dir = os.path.dirname(os.path.realpath(__file__))
+    target_script = os.path.join(script_dir, 'scripts', COMMAND_MAP[sys.argv[1]])
+
+    if len(sys.argv[2:]) == 0:
+        cmd_args = [target_script, '-h']
+    else:
+        cmd_args = [target_script] + sys.argv[2:]
+
+    subprocess.run(cmd_args, check=True)
+
+# Show help
+elif len(sys.argv) == 1 or (len(sys.argv) > 1 and sys.argv[1] in {'-h', '--help'}):
+
+    print(TITLE_ART)
+    print(HELP_MESSAGE)
+
+
+# Invalid command
+else:
+    print(TITLE_ART)
+    print(HELP_MESSAGE)
+    if len(sys.argv) > 1:
+        sys.exit(f'\033[31mError: unrecognized command "{sys.argv[1]}".\033[0m')
+    else:
+        sys.exit(0)
