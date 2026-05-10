@@ -27,17 +27,6 @@ A Polyploid Genome Hi-C Chromosome-Level Scaffolding Method Based on Multi-Scale
 
 <br>
 
-<div align="center">
-    <strong>Consistency consensus algorithm</strong>
-</div>
-<div align="center">
-    <!-- 请在此处插入您的第二张图片 -->
-    <!-- 建议图片路径示例：./figures/conhic_pipeline_overview.png -->
-    <!-- 或使用完整路径：/path/to/your/figure2.png -->
-    <img src="./fig/consistency.png" alt="ConHiC Pipeline Overview" width="800"/>
-    <br>
-
-</div>
 
 ---
 
@@ -72,7 +61,7 @@ $ /ConHiC/utils/filter_bam HiC.bam 1 --nm 3 --threads 14 | samtools view - -b -@
 
 # ConHiC (cluster+sort)
 /ConHiC/run/ConHiC sort asm.fa HT_links.pkl split_clms final_groups/group*.txt 
-python comprehensive_sort22.py
+python comprehensive_sort.py
 /ConHiC/run/ConHiC build asm.fa asm.fa HiC.filtered.bam final_tours/group*.tour
 ```
 
